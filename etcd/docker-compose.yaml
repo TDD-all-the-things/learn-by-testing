@@ -11,7 +11,7 @@ volumes:
 services:
   etcd1:
     image: bitnami/etcd:3.5.1
-    container_name: etcdx
+    container_name: etcd1
     ports:
       - 12379:2379
       - 12380:2380
