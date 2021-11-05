@@ -102,9 +102,95 @@ func (s *ETCDTestSuite) TestWithLeaseOption() {
 	s.NoError(err)
 	s.NotZero(getRes)
 	s.Zero(getRes.Kvs)
+	s.Equal(int64(0), getRes.Count)
 
 	delResp, err := s.cli.Delete(context.Background(), key)
 	s.NoError(err)
 	s.NotZero(delResp)
 	s.Zero(delResp.PrevKvs)
+}
+
+func (s *ETCDTestSuite) TestWithLeaseOptionAndKeepAlive() {
+
+	// create Lease
+	lease := clientv3.NewLease(s.cli)
+	ttl := 2
+	// Grant ttl to Lease
+	resp, err := lease.Grant(context.Background(), int64(ttl))
+	s.NoError(err)
+	s.Equal(int64(ttl), resp.TTL)
+
+	key, val := "/test/lease/abc", "ABC3"
+	putRes, err := s.cli.Put(context.Background(), key, val, clientv3.WithLease(resp.ID))
+	s.NoError(err)
+	s.NotZero(putRes)
+
+	// auto extend ttl
+	ctx, cancleFunc := context.WithCancel(context.Background())
+	keepChan, err := lease.KeepAlive(ctx, resp.ID)
+	s.NoError(err)
+
+	go func() {
+		//  get the result of extending ttl
+		keepResp := <-keepChan
+		s.NotZero(keepResp)
+		s.Equal(resp.ID, keepResp.ID)
+
+		//  get the result of extending ttl
+		keepResp = <-keepChan
+		s.NotZero(keepResp)
+		s.Equal(resp.ID, keepResp.ID)
+
+		// stop extending ttl
+		cancleFunc()
+
+		// can't get result any more
+		keepResp = <-keepChan
+		s.Zero(keepResp)
+	}()
+
+	// now ttl is 2 + 2
+	time.Sleep(4 * time.Second)
+
+	getRes, err := s.cli.Get(context.Background(), key)
+	s.NoError(err)
+	s.NotZero(getRes)
+	s.Zero(getRes.Kvs)
+	s.Equal(int64(0), getRes.Count)
+
+	delResp, err := s.cli.Delete(context.Background(), key)
+	s.NoError(err)
+	s.NotZero(delResp)
+	s.Zero(delResp.PrevKvs)
+}
+
+func (s *ETCDTestSuite) TestWatch() {
+	prefix := "/test/watch/"
+	keys := []string{prefix + "key", prefix + "key1"}
+	vals := []string{"val", "val1"}
+	watcher := clientv3.NewWatcher(s.cli)
+	rch := watcher.Watch(context.Background(), prefix, clientv3.WithPrefix())
+
+	go func() {
+		for i, key := range keys {
+			_, err := s.cli.Put(context.Background(), key, vals[i])
+			s.NoError(err)
+			time.Sleep(500 * time.Millisecond)
+		}
+		watcher.Close()
+	}()
+
+	i := 0
+	for wresp := range rch {
+		for _, ev := range wresp.Events {
+			s.Equal("PUT", ev.Type.String())
+			s.Equal(keys[i], string(ev.Kv.Key))
+			s.Equal(vals[i], string(ev.Kv.Value))
+			i++
+		}
+	}
+
+	_, err := s.cli.Delete(context.Background(), prefix, clientv3.WithPrefix())
+	s.NoError(err)
+
 }
