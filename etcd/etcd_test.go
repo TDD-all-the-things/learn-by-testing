@@ -2,6 +2,7 @@ package etcd_test
 
 import (
 	"context"
+	"strconv"
 	"testing"
 	"time"
 
@@ -192,5 +193,53 @@ func (s *ETCDTestSuite) TestWatch() {
 
 	_, err := s.cli.Delete(context.Background(), prefix, clientv3.WithPrefix())
 	s.NoError(err)
+}
+
+func (s *ETCDTestSuite) TestWatchWithRevisionOption() {
+
+	prefix := "/test/watch/revision"
+
+	resp, err := s.cli.Get(context.Background(), prefix, clientv3.WithPrefix())
+	s.NoError(err)
+
+	revision := resp.Header.Revision + 1
+	watcher := clientv3.NewWatcher(s.cli)
+	watchChan := watcher.Watch(context.Background(), prefix, clientv3.WithPrefix(), clientv3.WithRev(revision))
+
+	go func() {
+		for i := 0; i < 3; i++ {
+			istr := strconv.Itoa(i)
+			key, val := prefix+"/key"+istr, "val"
+			_, err := s.cli.Put(context.Background(), key, val)
+			s.NoError(err)
+
+			val = "val" + istr
+			_, err = s.cli.Put(context.Background(), key, val)
+			s.NoError(err)
+
+			_, err = s.cli.Get(context.Background(), prefix, clientv3.WithPrefix())
+			s.NoError(err)
+
+			_, err = s.cli.Delete(context.Background(), key)
+			s.NoError(err)
+		}
+		_, err = s.cli.Delete(context.Background(), prefix, clientv3.WithPrefix())
+		s.NoError(err)
+
+	}()
+
+	time.AfterFunc(1*time.Second, func() {
+		watcher.Close()
+	})
+
+	for {
+		watchResp, ok := <-watchChan
+		if !ok {
+			break
+		}
+		for _, ev := range watchResp.Events {
+			s.NotEmpty(ev)
+		}
+	}
 
 }
