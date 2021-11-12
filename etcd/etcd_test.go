@@ -204,7 +204,8 @@ func (s *ETCDTestSuite) TestWatchWithRevisionOption() {
 
 	revision := resp.Header.Revision + 1
 	watcher := clientv3.NewWatcher(s.cli)
-	watchChan := watcher.Watch(context.Background(), prefix, clientv3.WithPrefix(), clientv3.WithRev(revision))
+	ctx, cancel := context.WithCancel(context.Background())
+	watchChan := watcher.Watch(ctx, prefix, clientv3.WithPrefix(), clientv3.WithRev(revision))
 
 	go func() {
 		for i := 0; i < 3; i++ {
@@ -229,17 +230,36 @@ func (s *ETCDTestSuite) TestWatchWithRevisionOption() {
 	}()
 
 	time.AfterFunc(1*time.Second, func() {
-		watcher.Close()
+		cancel()
 	})
 
-	for {
-		watchResp, ok := <-watchChan
-		if !ok {
-			break
-		}
+	for watchResp := range watchChan {
 		for _, ev := range watchResp.Events {
 			s.NotEmpty(ev)
 		}
 	}
+}
 
+func (s *ETCDTestSuite) TestOperations() {
+	key, val := "/test/operation/key", "val"
+	// create Op (Operation) Object for PUT
+	putOp := clientv3.OpPut(key, val)
+
+	// execute PUT operation
+	putRespOp, err := s.cli.Do(context.Background(), putOp)
+	s.NoError(err)
+
+	// create Op (Operation) Object for GET
+	getOp := clientv3.OpGet(key)
+	s.NotNil(getOp)
+	
+    // execute GET operation
+	getRespOp, err := s.cli.Do(context.Background(), getOp)
+	s.NoError(err)
+
+	s.Equal(putRespOp.Put().Header.Revision, getRespOp.Get().Header.Revision)
+	s.Equal(val, string(getRespOp.Get().Kvs[0].Value))
+
+	_, err = s.cli.Delete(context.Background(), key)
+	s.NoError(err)
 }
