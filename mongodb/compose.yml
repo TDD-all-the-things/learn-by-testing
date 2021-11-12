@@ -1,0 +1,18 @@
+version: "3.9"
+
+volumes:
+  mongo503_test_data:
+    driver: local
+
+services:
+  mongo503:
+    image: mongo:5.0.3
+    container_name: mongo503-test
+    restart: always
+    ports:
+      - 27018:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+    volumes:
+      - mongo503_test_data:/data/mongo
