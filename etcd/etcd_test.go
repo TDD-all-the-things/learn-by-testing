@@ -252,8 +252,8 @@ func (s *ETCDTestSuite) TestOperations() {
 	// create Op (Operation) Object for GET
 	getOp := clientv3.OpGet(key)
 	s.NotNil(getOp)
-	
-    // execute GET operation
+
+	// execute GET operation
 	getRespOp, err := s.cli.Do(context.Background(), getOp)
 	s.NoError(err)
 
@@ -262,4 +262,42 @@ func (s *ETCDTestSuite) TestOperations() {
 
 	_, err = s.cli.Delete(context.Background(), key)
 	s.NoError(err)
+}
+
+func (s *ETCDTestSuite) TestTransactions() {
+	// use Lease, auto extending expire time
+	lease := clientv3.NewLease(s.cli)
+	ttl := 2
+
+	respLease, err := lease.Grant(context.Background(), int64(ttl))
+	s.NoError(err)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	_, err = lease.KeepAlive(ctx, respLease.ID)
+	s.NoError(err)
+
+	// release "LOCK"
+	defer func() {
+		// cancel auto extend expire time of lease
+		cancel()
+		// revoke "LOCK" right now
+		lease.Revoke(context.Background(), respLease.ID)
+	}()
+
+	// use txn to "LOCK"
+	key, val := "test/transaction/key", "val"
+	txn := clientv3.NewKV(s.cli).Txn(context.Background())
+	txnResp, err := txn.If(clientv3.Compare(clientv3.CreateRevision(key), "=", 0)).Then(clientv3.OpPut(key, val, clientv3.WithLease(respLease.ID))).Else(clientv3.OpGet(key)).Commit()
+
+	s.NoError(err)
+	s.Equal(true, txnResp.Succeeded)
+
+	// do your bussiness
+
+	s.Run("Lock failed", func() {
+		txn := clientv3.NewKV(s.cli).Txn(context.Background())
+		txnResp, err := txn.If(clientv3.Compare(clientv3.CreateRevision(key), "=", 0)).Then(clientv3.OpPut(key, val, clientv3.WithLease(respLease.ID))).Else(clientv3.OpGet(key)).Commit()
+		s.NoError(err)
+		s.Equal(val, string(txnResp.Responses[0].GetResponseRange().Kvs[0].Value))
+	})
 }
