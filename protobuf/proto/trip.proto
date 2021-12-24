@@ -1,0 +1,20 @@
+syntax = "proto3";
+package trip;
+
+option go_package = "github.com/gojustforfun/learn-by-test/grpc/proto/gen/go/trippb";
+
+message Trip {
+    string start = 1;
+    // 不是按照声明位置,而是按照“=”右侧的数字排序
+    Location start_position = 5;
+    repeated Location path_positions = 7;
+    string end = 2;
+    Location end_position = 6;
+    int64 duration_in_sec = 3;
+    int64 fee_in_cent = 4;
+}
+
+message Location {
+    double latitude = 1;
+    double longitude = 2;
+}
