@@ -1,0 +1,11 @@
+syntax = "proto3";
+package trip;
+
+option go_package = "github.com/gojustforfun/learn-by-test/grpc/proto/gen/go/trippb";
+
+message Trip {
+    string start = 1;
+    string end = 2;
+    int64 duration_in_sec = 3;
+    int64 fee_in_cent = 4;
+}
