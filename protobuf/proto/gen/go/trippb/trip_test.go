@@ -28,6 +28,7 @@ func TestTripSerializeAndDeserialize(t *testing.T) {
 		},
 		DurationInSec: 3600,
 		FeeInCent:     10000,
+		Status: trippb.Status_IN_PROGRESS,
 	}
 
 	t.Run("ProtoBuf", func(t *testing.T) {
