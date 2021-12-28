@@ -1,0 +1,42 @@
+syntax = "proto3";
+package trip;
+
+option go_package = "/gen/go/trippb";
+
+message Trip {
+    string start = 1;
+    // 不是按照声明位置,而是按照“=”右侧的数字排序
+    Location start_position = 5;
+    repeated Location path_positions = 7;
+    string end = 2;
+    Location end_position = 6;
+    int64 duration_in_sec = 3;
+    int64 fee_in_cent = 4;
+    Status status = 8;
+}
+
+message Location {
+    double latitude = 1;
+    double longitude = 2;
+}
+
+enum Status {
+    NOT_SPECIFIED = 0;
+    NOT_STARTED = 1;
+    IN_PROGRESS = 2;
+    FINISHED = 3;
+    PAID = 4;
+}
+
+service TripService {
+    rpc GetTrip (GetTripRequest) returns (GetTripResponse);
+}
+
+message GetTripRequest {
+    string id = 1;
+}
+
+message GetTripResponse {
+    string id = 1;
+    Trip trip = 2;
+}
