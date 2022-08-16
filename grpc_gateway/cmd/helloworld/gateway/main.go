@@ -6,8 +6,8 @@ import (
 	"net"
 	"net/http"
 
-	helloworldpb "github.com/gojustforfun/learn-by-test/grpc_gateway/proto/helloworld"
-	"github.com/gojustforfun/learn-by-test/grpc_gateway/server"
+	helloworldpb "github.com/TDD-all-the-things/learn-by-testing/grpc_gateway/proto/helloworld"
+	"github.com/TDD-all-the-things/learn-by-testing/grpc_gateway/server"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

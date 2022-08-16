@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	pb "github.com/gojustforfun/learn-by-test/grpc_gateway/proto/helloworld"
-	"github.com/gojustforfun/learn-by-test/grpc_gateway/server"
+	pb "github.com/TDD-all-the-things/learn-by-testing/grpc_gateway/proto/helloworld"
+	"github.com/TDD-all-the-things/learn-by-testing/grpc_gateway/server"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/stretchr/testify/suite"
 	"google.golang.org/grpc"

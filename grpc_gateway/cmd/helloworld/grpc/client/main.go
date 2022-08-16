@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	pb "github.com/gojustforfun/learn-by-test/grpc_gateway/proto/helloworld"
+	pb "github.com/TDD-all-the-things/learn-by-testing/grpc_gateway/proto/helloworld"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )

@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 
-	pb "github.com/gojustforfun/learn-by-test/grpc_gateway/proto/helloworld"
+	pb "github.com/TDD-all-the-things/learn-by-testing/grpc_gateway/proto/helloworld"
 )
 
 type helloworld struct {

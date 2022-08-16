@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gojustforfun/learn-by-test/api"
+	"github.com/TDD-all-the-things/learn-by-testing/api"
 	"github.com/maxatome/go-testdeep/helpers/tdhttp"
 	"github.com/maxatome/go-testdeep/helpers/tdsuite"
 	"github.com/maxatome/go-testdeep/td"

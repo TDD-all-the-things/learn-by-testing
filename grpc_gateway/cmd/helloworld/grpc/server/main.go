@@ -6,8 +6,8 @@ import (
 
 	"google.golang.org/grpc"
 
-	helloworldpb "github.com/gojustforfun/learn-by-test/grpc_gateway/proto/helloworld"
-	"github.com/gojustforfun/learn-by-test/grpc_gateway/server"
+	helloworldpb "github.com/TDD-all-the-things/learn-by-testing/grpc_gateway/proto/helloworld"
+	"github.com/TDD-all-the-things/learn-by-testing/grpc_gateway/server"
 )
 
 func main() {
@@ -19,7 +19,7 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	
+
 	helloworldpb.RegisterGreeterServer(s, server.NewHelloworld())
 
 	// Serve gRPC Server

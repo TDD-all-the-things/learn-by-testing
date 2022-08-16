@@ -5,8 +5,8 @@ import (
 	"net"
 	"testing"
 
-	"github.com/gojustforfun/learn-by-test/grpc/proto/gen/go/trippb"
-	"github.com/gojustforfun/learn-by-test/grpc/service"
+	"github.com/TDD-all-the-things/learn-by-testing/grpc/proto/gen/go/trippb"
+	"github.com/TDD-all-the-things/learn-by-testing/grpc/service"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"

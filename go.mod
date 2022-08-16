@@ -1,6 +1,6 @@
-module github.com/gojustforfun/learn-by-test
+module github.com/TDD-all-the-things/learn-by-testing
 
-go 1.17
+go 1.19
 
 require (
 	github.com/docker/docker v20.10.12+incompatible

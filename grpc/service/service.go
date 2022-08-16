@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"github.com/gojustforfun/learn-by-test/grpc/proto/gen/go/trippb"
+	"github.com/TDD-all-the-things/learn-by-testing/grpc/proto/gen/go/trippb"
 )
 
 /*

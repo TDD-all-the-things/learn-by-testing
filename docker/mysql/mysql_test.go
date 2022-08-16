@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/gojustforfun/learn-by-test/docker"
+	"github.com/TDD-all-the-things/learn-by-testing/docker"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

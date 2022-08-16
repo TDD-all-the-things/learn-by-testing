@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/gojustforfun/learn-by-test/protobuf/proto/gen/go/trippb"
+	"github.com/TDD-all-the-things/learn-by-testing/protobuf/proto/gen/go/trippb"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
 )
@@ -28,7 +28,7 @@ func TestTripSerializeAndDeserialize(t *testing.T) {
 		},
 		DurationInSec: 3600,
 		FeeInCent:     10000,
-		Status: trippb.Status_IN_PROGRESS,
+		Status:        trippb.Status_IN_PROGRESS,
 	}
 
 	t.Run("ProtoBuf", func(t *testing.T) {
@@ -52,7 +52,7 @@ func TestTripSerializeAndDeserialize(t *testing.T) {
 		var trip trippb.Trip
 		err = json.Unmarshal(b, &trip)
 		assert.NoError(t, err)
-		
+
 		assert.True(t, proto.Equal(&origin, &trip))
 	})
 
